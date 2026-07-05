@@ -38,7 +38,7 @@ indent_style = space
 indent_size = 2
 
 # 2 space indentation for json and yaml files
-[*.{json,yml}]
+[*.{json,yml,yaml}]
 indent_style = space
 indent_size = 2
 
