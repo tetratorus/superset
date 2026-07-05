@@ -26,10 +26,31 @@ import { convertUTCTimestampToLocal } from './utils';
 
 // The vendor file is @ts-nocheck, so its export lacks type info.
 // Define a minimal constructor interface for use in this file.
+interface D3TipInstance {
+  destroy(): void;
+}
+
 interface CalHeatMapInstance {
   init(config: Record<string, unknown>): void;
+  tip: D3TipInstance;
+  legendTip: D3TipInstance;
 }
 const CalHeatMap = CalHeatMapImport as unknown as new () => CalHeatMapInstance;
+
+interface CalendarElement extends HTMLElement {
+  __calHeatMapInstances?: CalHeatMapInstance[];
+}
+
+export function destroyCalHeatMapTooltips(element: CalendarElement): void {
+  const instances = element.__calHeatMapInstances;
+  if (instances) {
+    instances.forEach(cal => {
+      cal.tip.destroy();
+      cal.legendTip.destroy();
+    });
+    element.__calHeatMapInstances = undefined;
+  }
+}
 
 interface CalendarData {
   data: Record<string, Record<string, number>>;
@@ -58,7 +79,7 @@ interface CalendarProps {
   theme: SupersetTheme;
 }
 
-function Calendar(element: HTMLElement, props: CalendarProps) {
+function Calendar(element: CalendarElement, props: CalendarProps) {
   const {
     data,
     height,
@@ -78,11 +99,18 @@ function Calendar(element: HTMLElement, props: CalendarProps) {
     theme,
   } = props;
 
+  // Destroy d3-tip tooltips from previous renders before clearing the container.
+  // d3-tip appends tooltip elements to document.body, so they persist
+  // even after the chart's own DOM is removed.
+  destroyCalHeatMapTooltips(element);
+
   const container = d3Select(element)
     .classed('superset-legacy-chart-calendar', true)
     .style('height', height);
   container.selectAll('*').remove();
   const div = container.append('div');
+
+  const calInstances: CalHeatMapInstance[] = [];
 
   const subDomainTextFormat = showValues
     ? (_date: Date, value: number) => valueFormatter(value)
@@ -118,6 +146,7 @@ function Calendar(element: HTMLElement, props: CalendarProps) {
     const legendColors = legend.map(x => colorScale(x));
 
     const cal = new CalHeatMap();
+    calInstances.push(cal);
     cal.init({
       start: convertUTCTimestampToLocal(data.start),
       data: timestamps,
@@ -148,6 +177,9 @@ function Calendar(element: HTMLElement, props: CalendarProps) {
       subDomainTextFormat,
     });
   });
+
+  // Store instances so tooltips can be cleaned up on re-render or unmount
+  element.__calHeatMapInstances = calInstances;
 }
 
 Calendar.displayName = 'Calendar';

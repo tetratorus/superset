@@ -16,10 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useEffect, useRef } from 'react';
 import { reactify } from '@superset-ui/core';
 import { styled, css, useTheme } from '@apache-superset/core/theme';
 import { Global } from '@emotion/react';
-import Component from './Calendar';
+import Component, { destroyCalHeatMapTooltips } from './Calendar';
 
 // Type-erase the render function to allow flexible prop spreading in the wrapper.
 // The Calendar render function has typed props, but the wrapper passes props via spread
@@ -38,8 +39,24 @@ interface CalendarWrapperProps {
 
 const Calendar = ({ className, ...otherProps }: CalendarWrapperProps) => {
   const theme = useTheme();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Clean up d3-tip tooltip elements appended to document.body when
+  // the component unmounts (e.g. navigating away from a dashboard).
+  useEffect(
+    () => () => {
+      const container = wrapperRef.current?.querySelector(
+        '.superset-legacy-chart-calendar',
+      ) as HTMLElement | undefined;
+      if (container) {
+        destroyCalHeatMapTooltips(container);
+      }
+    },
+    [],
+  );
+
   return (
-    <div className={className}>
+    <div className={className} ref={wrapperRef}>
       <Global
         styles={css`
           .d3-tip {
