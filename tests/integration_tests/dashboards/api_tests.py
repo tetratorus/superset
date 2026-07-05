@@ -2821,6 +2821,9 @@ class TestDashboardApi(ApiOwnersTestCaseMixin, InsertChartMixin, SupersetTestCas
         headers = "attachment; filename=dashboard_export_20220101T000000.zip"  # noqa: F541
         assert rv.status_code == 200
         assert rv.headers["Content-Disposition"] == headers
+        # Exports must not be cached by the browser (see issue #33): send_file
+        # should not inherit the static-asset SEND_FILE_MAX_AGE_DEFAULT.
+        assert rv.cache_control.max_age == 0
 
     def test_export_not_found(self):
         """
