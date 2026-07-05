@@ -583,7 +583,7 @@ class DatastoreEngineSpec(BaseEngineSpec):  # pylint: disable=too-many-public-me
         Used for SQL Lab autocomplete.
 
         :param database: The database to get functions for
-        :return: A list of function names useable in the database
+        :return: A list of function names usable in the database
         """
         return ["sum", "avg", "count", "count_up_to", "min", "max"]
 

@@ -2313,7 +2313,7 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
         Used for SQL Lab autocomplete.
 
         :param database: The database to get functions for
-        :return: A list of function names useable in the database
+        :return: A list of function names usable in the database
         """
         return []
 

@@ -582,7 +582,7 @@ class HiveEngineSpec(PrestoEngineSpec):
         Used for SQL Lab autocomplete.
 
         :param database: The database to get functions for
-        :return: A list of function names useable in the database
+        :return: A list of function names usable in the database
         """
         df = database.get_df("SHOW FUNCTIONS")
         if cls._show_functions_column in df:
