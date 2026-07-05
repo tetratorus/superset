@@ -2241,6 +2241,52 @@ describe('plugin-chart-table', () => {
           expect(screen.getByText('Michael')).toBeInTheDocument();
         });
       });
+
+      test('does not render "Search by" control when server pagination is enabled but the search box option is disabled (#38)', () => {
+        const props = transformProps({
+          ...testData.basic,
+          rawFormData: {
+            ...testData.basic.rawFormData,
+            include_search: false,
+            server_pagination: true,
+            page_length: 10,
+          },
+          ownState: { pageSize: 10, currentPage: 0 },
+        });
+        props.includeSearch = false;
+        props.serverPagination = true;
+
+        render(
+          <ProviderWrapper>
+            <TableChart {...props} sticky={false} />
+          </ProviderWrapper>,
+        );
+
+        expect(screen.queryByText('Search by')).not.toBeInTheDocument();
+      });
+
+      test('renders "Search by" control when server pagination and the search box option are both enabled (#38)', () => {
+        const props = transformProps({
+          ...testData.basic,
+          rawFormData: {
+            ...testData.basic.rawFormData,
+            include_search: true,
+            server_pagination: true,
+            page_length: 10,
+          },
+          ownState: { pageSize: 10, currentPage: 0 },
+        });
+        props.includeSearch = true;
+        props.serverPagination = true;
+
+        render(
+          <ProviderWrapper>
+            <TableChart {...props} sticky={false} />
+          </ProviderWrapper>,
+        );
+
+        expect(screen.getByText('Search by')).toBeInTheDocument();
+      });
     });
 
     test('should build columnLabelToNameMap for adhoc columns with custom labels', () => {
