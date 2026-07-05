@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { useEffect } from 'react';
 import { reactify } from '@superset-ui/core';
 import { styled, css, useTheme } from '@apache-superset/core/theme';
 import { Global } from '@emotion/react';
@@ -38,6 +39,16 @@ interface CalendarWrapperProps {
 
 const Calendar = ({ className, ...otherProps }: CalendarWrapperProps) => {
   const theme = useTheme();
+
+  useEffect(
+    () => () => {
+      document
+        .querySelectorAll('.d3-tip')
+        .forEach(el => el.remove());
+    },
+    [],
+  );
+
   return (
     <div className={className}>
       <Global
